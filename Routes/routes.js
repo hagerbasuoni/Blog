@@ -3,11 +3,13 @@ import {
     getAllBlogs,
     createBlog
 } from "../controller/blogcontroller.js";
-//const router = express.Router()
+import { getAllUsers, createUser } from "../controller/usercontroller.js";
+//Blog Routes
 const router = new Router();
 router.get("/", getAllBlogs);
-// router.get("/:id", getPersonById);
 router.post("/", createBlog);
-// router.delete("/:id", deletePerson);
-// router.patch("/:id", personcontroller.updateTour);
+//User Routes
+router.get("/", getAllUsers);
+router.post("/", createUser);
+
 export default router;

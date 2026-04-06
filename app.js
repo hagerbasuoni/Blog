@@ -1,5 +1,6 @@
 import express from "express";
 import router from "./Routes/routes.js";
+import userRouter from "./Routes/userRoutes.js";
 import mongoose from "mongoose";
 if (process.argv.length < 3) {
   console.log("give password as an argument");
@@ -18,6 +19,7 @@ mongoose
 const app = express();
 app.use(express.json());
 app.use('/api/blogs', router);
+app.use("/api/users", userRouter);
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}...`);
 });

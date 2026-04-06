@@ -8,10 +8,11 @@
   "main": "app.js",
   "scripts": {
     "start": "node --env-file=.env app.js ",
-    "dev": "node --watch --env-file=.env app.js",
+    "dev": "node --watch --env-file=.env app.js hager3",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "mongoose": "^9.4.1"
   }
