@@ -2,20 +2,49 @@ import Blog from "../models/blog.js";
 import User from "../models/user.js";
 const getAllBlogs = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search,author ,sortBy,order,page,limit} = req.query;
     let filter = {};
+    let sorting ={}
     if (search) {
       filter.title = {
         $regex: search,
-        $options: "i" //case=insensitive
-      }
+        $options: "i", //case=insensitive
+      };
     }
-    const blogs = await Blog.find(filter).populate("user", {
-      name: 1,
-    });;
+    if (author) {
+      filter.author = {
+        $regex: author,
+        $options: "i", //case=insensitive
+      };
+    }
+    if (sortBy) {
+      const sortfield = ['likes']
+      if (!sortfield.includes(sortBy)) {
+        return res.status(400).json({ error: `Sorting by ${sortBy} is not supported` });
+      }
+      const sortOrder = order === "desc" ? -1 : 1;
+      sorting[sortBy]=sortOrder
+    }
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+    const totalBlogs = await Blog.countDocuments(filter);
+    const totalPages = Math.ceil(totalBlogs / limitNum);
+    const blogs = await Blog.find(filter)
+      .sort(sorting)
+      .skip(skip)
+      .limit(limitNum)
+      .populate("user", {
+        name: 1,
+      });;
     res.status(200).json({
       status: "success",
-      result: blogs.length,
+      pagination: {
+        currentPage: pageNum,
+        pageSize: blogs.length,
+        totalBlogs: totalBlogs,
+        totalPages: totalPages,
+      },
       data: { blogs },
     });
   } catch (err) {
