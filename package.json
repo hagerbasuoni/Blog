@@ -8,7 +8,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node --env-file=.env app.js ",
-    "dev": "node --watch --env-file=.env app.js hager3",
+    "dev": "node --watch --env-file=.env app.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
