@@ -58,7 +58,7 @@ const createBlog = async (req, res,next) => {
     const { title, author, url, likes } = req.body;
     const user = req.user; 
     if (!user) {
-      return response.status(401).json({ error: "token missing or invalid" });
+      return res.status(401).json({ error: "token missing or invalid" });
     }
     const newBlog = await Blog.create({
       title,
@@ -99,12 +99,12 @@ const deleteBlog = async (req, res,next) => {
     const user = req.user;
 
   if (!user) {
-    return response.status(401).json({ error: "token missing or invalid" });
+    return res.status(401).json({ error: "token missing or invalid" });
   }
   const blog = await Blog.findById(req.params.id);
 
   if (!blog) {
-    return response.status(404).json({ error: "blog not found" });
+    return res.status(404).json({ error: "blog not found" });
   }
   if (blog.user.toString() !== user._id.toString()) {
     return res.status(403).json({ error: "only the creator can delete this blog" });
