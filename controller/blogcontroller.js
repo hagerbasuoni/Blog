@@ -1,13 +1,7 @@
 import Blog from "../models/blog.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
-const getTokenFrom = (req) => {
-  const authorization = req.get("authorization");
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace("Bearer ",'');
-  }
-  return null;
-}
+import { tokenExtractor } from "../utils/middelware.js";
 const getAllBlogs = async (req, res) => {
   try {
     const { search,author ,sortBy,order,page,limit} = req.query;
@@ -56,24 +50,16 @@ const getAllBlogs = async (req, res) => {
       data: { blogs },
     });
   } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
-    });
+    next(err)
   }
 };
 const createBlog = async (req, res) => {
   try {
     const { title, author, url, likes } = req.body;
-    const token = getTokenFrom(req);
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    if (!decodedToken.id) {
-      return
-      res.status(401).json({
-        error:"token invalid"
-      })
+    const user = req.user; 
+    if (!user) {
+      return response.status(401).json({ error: "token missing or invalid" });
     }
-    const user = await User.findById(decodedToken.id);
     const newBlog = await Blog.create({
       title,
       author,
@@ -87,11 +73,9 @@ const createBlog = async (req, res) => {
       status: "success",
       data: { newBlog },
     });
-  } catch {
-    res.status(400).json({
-      status: "fail",
-      message: "invalid data input",
-    });
+  } catch (err) {
+    next(err)
+  
   }
 };
 const updateLikes = async (req, res) => {
@@ -106,10 +90,31 @@ const updateLikes = async (req, res) => {
       data: { updatedBlog },
     });
   } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: "Blog not found",
-    });
+    next(err);
   }
 }
-export { createBlog, getAllBlogs, updateLikes };
+const deleteBlog = async (req, res) => {
+  try
+  {
+    const user = req.user;
+
+  if (!user) {
+    return response.status(401).json({ error: "token missing or invalid" });
+  }
+  const blog = await Blog.findById(req.params.id);
+
+  if (!blog) {
+    return response.status(404).json({ error: "blog not found" });
+  }
+  if (blog.user.toString() !== user._id.toString()) {
+    return res.status(403).json({ error: "only the creator can delete this blog" });
+  }
+
+  await Blog.findByIdAndDelete(req.params.id);
+    res.status(204).end();
+  }
+  catch (err) {
+    next(err)
+  }
+}
+export { createBlog, getAllBlogs, updateLikes, deleteBlog };

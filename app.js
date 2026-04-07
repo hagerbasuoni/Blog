@@ -3,6 +3,11 @@ import router from "./Routes/routes.js";
 import userRouter from "./Routes/userRoutes.js";
 import mongoose from "mongoose";
 import loginRouter from "./controller/login.js";
+import {
+  tokenExtractor,
+  userExtractor,
+  errorHandler,
+} from "./utils/middelware.js";
 if (process.argv.length < 3) {
   console.log("give password as an argument");
   process.exit(1);
@@ -19,9 +24,11 @@ mongoose
   });
 const app = express();
 app.use(express.json());
-app.use('/api/blogs', router);
+app.use(tokenExtractor);
+app.use('/api/blogs',userExtractor, router);
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);
+app.use(errorHandler);
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}...`);
 });
