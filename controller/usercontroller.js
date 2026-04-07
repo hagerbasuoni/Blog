@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res,next) => {
   try {
     const Users = await User.find().populate("blogs", {
       url: 1,
@@ -13,13 +13,10 @@ const getAllUsers = async (req, res) => {
       data: { Users },
     });
   } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
-    });
+    next(err)
   }
 };
-const createUser = async (req, res) => {
+const createUser = async (req, res,next) => {
     try {
         const { name, username, password } = req.body;
         if (!password || password.length < 3) {
@@ -45,11 +42,9 @@ const createUser = async (req, res) => {
       status: "success",
       data: { newUser },
     });
-  } catch {
-    res.status(400).json({
-      status: "fail",
-      message: "invalid data input",
-    });
+  } catch (err) {
+    next(err)
+  
   }
 };
 export { createUser, getAllUsers };

@@ -2,7 +2,7 @@ import Blog from "../models/blog.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 import { tokenExtractor } from "../utils/middelware.js";
-const getAllBlogs = async (req, res) => {
+const getAllBlogs = async (req, res,next) => {
   try {
     const { search,author ,sortBy,order,page,limit} = req.query;
     let filter = {};
@@ -53,7 +53,7 @@ const getAllBlogs = async (req, res) => {
     next(err)
   }
 };
-const createBlog = async (req, res) => {
+const createBlog = async (req, res,next) => {
   try {
     const { title, author, url, likes } = req.body;
     const user = req.user; 
@@ -78,7 +78,7 @@ const createBlog = async (req, res) => {
   
   }
 };
-const updateLikes = async (req, res) => {
+const updateLikes = async (req, res,next) => {
   try {
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,
@@ -93,7 +93,7 @@ const updateLikes = async (req, res) => {
     next(err);
   }
 }
-const deleteBlog = async (req, res) => {
+const deleteBlog = async (req, res,next) => {
   try
   {
     const user = req.user;

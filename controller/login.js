@@ -3,8 +3,10 @@ import bcrypt from "bcrypt";
 import { Router } from "express";
 import User from "../models/user.js";
 const loginRouter = new Router();
-loginRouter.post("/", async (req, res) => {
-    const { username, password } = req.body;
+loginRouter.post("/", async (req, res,next) => {
+    try
+    {
+        const { username, password } = req.body;
     const user = await User.findOne({ username });
     //make sure the password is correct 
     const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash);
@@ -20,6 +22,9 @@ loginRouter.post("/", async (req, res) => {
     const token = jwt.sign(userForToken, process.env.SECRET);
     res
       .status(200)
-      .send({ token, username: user.username, name: user.name });
+            .send({ token, username: user.username, name: user.name });
+    } catch (err) {
+        next(err)
+      }
 })
 export default loginRouter;
