@@ -1,5 +1,13 @@
 import Blog from "../models/blog.js";
 import User from "../models/user.js";
+import jwt from "jsonwebtoken";
+const getTokenFrom = (req) => {
+  const authorization = req.get("authorization");
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace("Bearer ",'');
+  }
+  return null;
+}
 const getAllBlogs = async (req, res) => {
   try {
     const { search,author ,sortBy,order,page,limit} = req.query;
@@ -57,7 +65,15 @@ const getAllBlogs = async (req, res) => {
 const createBlog = async (req, res) => {
   try {
     const { title, author, url, likes } = req.body;
-    const user = await User.findOne({});
+    const token = getTokenFrom(req);
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+    if (!decodedToken.id) {
+      return
+      res.status(401).json({
+        error:"token invalid"
+      })
+    }
+    const user = await User.findById(decodedToken.id);
     const newBlog = await Blog.create({
       title,
       author,
